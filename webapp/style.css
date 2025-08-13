@@ -1,45 +1,34 @@
+/* style.css (ФИНАЛЬНАЯ ВЕРСИЯ ДИЗАЙНА) */
 :root {
     --tg-theme-bg-color: #ffffff;
     --tg-theme-text-color: #000000;
     --tg-theme-button-color: #5288c1;
     --tg-theme-button-text-color: #ffffff;
+    --tg-theme-secondary-bg-color: #f0f3f8;
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
     padding: 15px;
-    padding-bottom: 70px; /* Место для нижнего меню */
+    padding-bottom: 70px;
     background-color: var(--tg-theme-bg-color);
     color: var(--tg-theme-text-color);
-    -webkit-font-smoothing: antialiased;
 }
-
 .screen { display: none; }
 .screen.active { display: block; }
 
-#loader {
-    text-align: center;
-    margin-top: 40vh;
-}
-.spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border-left-color: var(--tg-theme-button-color);
-    animation: spin 1s ease infinite;
-    margin: 0 auto 10px;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+h2 {
+    margin-top: 0;
 }
 
+#loader { text-align: center; margin-top: 40vh; }
+.spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--tg-theme-button-color); animation: spin 1s ease infinite; margin: 0 auto 10px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
 .list-container .item {
-    background: var(--tg-theme-bg-color);
-    border: 1px solid #e0e0e0; /* Добавим рамку для контраста */
-    color: var(--tg-theme-text-color); /* Явно указываем цвет текста */
+    background: var(--tg-theme-secondary-bg-color);
+    color: var(--tg-theme-text-color);
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
@@ -48,79 +37,31 @@ body {
     font-weight: 500;
 }
 
-.product-card {
-    background: var(--tg-theme-bg-color);
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    color: var(--tg-theme-text-color); /* Явно указываем цвет текста */
-}
-.product-card img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-}
-.product-card-info {
-    padding: 10px;
-}
-.product-card-info h3 {
-    margin: 0 0 5px 0;
-    font-size: 1em;
-}
-.product-card-info p {
-    margin: 0;
-    font-size: 0.9em;
-    font-weight: bold;
-}
+.grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+.product-card { background: var(--tg-theme-secondary-bg-color); border-radius: 8px; overflow: hidden; cursor: pointer; color: var(--tg-theme-text-color); }
+.product-card img { width: 100%; height: 150px; object-fit: cover; background-color: #e0e0e0; }
+.product-card-info { padding: 10px; }
+.product-card-info h3 { margin: 0 0 5px 0; font-size: 1em; }
+.product-card-info p { margin: 0; font-size: 0.9em; font-weight: bold; color: var(--tg-theme-button-color); }
 
-#product-details-content img {
-    width: 100%;
-    border-radius: 8px;
-}
+#product-details-content img { width: 100%; border-radius: 8px; }
 .options-group { margin: 15px 0; }
-.option-button {
-    display: inline-block;
-    padding: 8px 12px;
-    margin: 5px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    cursor: pointer;
-}
-.option-button.selected {
-    background-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-    border-color: var(--tg-theme-button-color);
-}
-.action-button {
-    width: 100%;
-    background-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-    border: none;
-}
+.option-button { display: inline-block; padding: 8px 12px; margin: 5px; border: 1px solid #ccc; border-radius: 20px; cursor: pointer; }
+.option-button.selected { background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); border-color: var(--tg-theme-button-color); }
+.action-button { width: 100%; background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); border: none; padding: 15px; font-size: 1.1em; border-radius: 8px; cursor: pointer; }
 
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-}
+.cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
 .cart-item-info { flex-grow: 1; }
-.cart-item-remove { cursor: pointer; color: #ff4136; }
+.cart-item-remove { cursor: pointer; font-size: 1.2em; padding: 5px; }
 #cart-total { font-weight: bold; font-size: 1.2em; text-align: right; margin-top: 15px; }
-#cart-actions { margin-top: 20px; }
 
-
+/* === ИСПРАВЛЕНИЕ ДЛЯ НИЖНЕГО МЕНЮ === */
 .bottom-nav {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0; left: 0; right: 0;
     display: flex;
-    background: #fff;
-    border-top: 1px solid #eee;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+    background: var(--tg-theme-secondary-bg-color); /* Фон кнопок */
+    border-top: 1px solid #e0e0e0;
 }
 .bottom-nav button {
     flex-grow: 1;
@@ -129,13 +70,6 @@ body {
     border: none;
     cursor: pointer;
     font-size: 1em;
-    color: var(--tg-theme-text-color);
+    color: var(--tg-theme-text-color); /* Цвет текста кнопок */
 }
-#cart-counter {
-    background-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 0.8em;
-    display: none;
-}
+#cart-counter { background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); border-radius: 50%; padding: 2px 6px; font-size: 0.8em; display: none; }
