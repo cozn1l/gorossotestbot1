@@ -189,7 +189,7 @@ async def cmd_start(message: types.Message):
 
     kb = ReplyKeyboardBuilder()
     # !!! ЗАМЕНИТЬ НА СВОЙ РЕАЛЬНЫЙ URL от GitHub Pages !!!
-    web_app_url = 'https://igor-ch.github.io/tg-bot/'
+    web_app_url = 'https://cozn1l.github.io/gorossotestbot1/webapp'
     kb.row(types.KeyboardButton(text='🏪 Открыть магазин', web_app=WebAppInfo(url=web_app_url)))
     kb.row(types.KeyboardButton(text='Мои заказы'), types.KeyboardButton(text='Контакты'))
     if is_admin(user_id):
@@ -285,6 +285,40 @@ async def addproduct_start(message: types.Message, state: FSMContext):
 
 # ... и так далее для всех состояний FSM...
 # ... все остальные админ-хендлеры ...
+
+# --- ВОЗВРАЩАЕМ ОБРАБОТЧИКИ ДЛЯ АДМИН-ПАНЕЛИ ---
+
+@dp.message(F.text == 'Список товаров')
+async def list_products(message: types.Message):
+    if not is_admin(message.from_user.id): return
+    rows = db_exec(
+        'SELECT p.id, p.name, c.name as category, p.price, p.stock FROM products p LEFT JOIN categories c ON p.category_id = c.id',
+        fetch=True)
+    if not rows:
+        await message.reply('Товаров нет')
+        return
+    text = 'ID | Название | Категория | Цена | Остаток\n\n'
+    for r in rows:
+        text += f"{r['id']} | {r['name']} | {r['category']} | {r['price'] / 100:.2f} | {r['stock']}\n"
+    await message.reply(text)
+
+
+@dp.message(F.text == 'Редактировать товар')
+async def edit_product_start(message: types.Message, state: FSMContext):
+    if not is_admin(message.from_user.id): return
+    await message.reply('Введите ID товара, который хотите изменить:', reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(EditProductStates.id_to_edit)
+
+
+@dp.message(F.text == 'Удалить товар')
+async def delete_product_start(message: types.Message, state: FSMContext):
+    if not is_admin(message.from_user.id): return
+    await message.reply('Введите ID товара, который хотите удалить:', reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(DeleteProductStates.id_to_delete)
+
+# Также убедись, что все обработчики состояний (FSM) для этих действий
+# (EditProductStates.id_to_edit, DeleteProductStates.id_to_delete и т.д.)
+# тоже присутствуют в твоем файле.
 
 # --- ЗАПУСК ---
 async def main():
