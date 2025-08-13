@@ -1,4 +1,4 @@
-# bot.py (ФИНАЛЬНАЯ ВЕРСИЯ 2.0 - С ПОЛНОЙ АДМИНКОЙ)
+# bot.py (ФИНАЛЬНАЯ ВЕРСИЯ 3.0 - С ПОЛНОСТЬЮ РАБОЧЕЙ АДМИНКОЙ)
 import os
 import sqlite3
 import uuid
@@ -67,12 +67,11 @@ class AddProductStates(StatesGroup): name = State(); category = State(); price =
 class EditProductStates(StatesGroup): id_to_edit = State(); field = State(); new_value = State()
 class DeleteProductStates(StatesGroup): id_to_delete = State()
 
-
 # --- Основные хендлеры ---
 @dp.message(Command('start'))
 async def cmd_start(message: types.Message):
     kb = ReplyKeyboardBuilder()
-    web_app_url = 'https://cozn1l.github.io/gorossotestbot1/webapp/' # Убедись, что твой URL здесь верный
+    web_app_url = 'https://cozn1l.github.io/gorossotestbot1/webapp/'
     kb.row(types.KeyboardButton(text='🏪 Открыть магазин', web_app=WebAppInfo(url=web_app_url)))
     kb.row(types.KeyboardButton(text='Мои заказы'), types.KeyboardButton(text='Контакты'))
     if is_admin(message.from_user.id):
@@ -81,25 +80,22 @@ async def cmd_start(message: types.Message):
 
 # ... ДРУГИЕ ХЕНДЛЕРЫ ОСТАЮТСЯ ЗДЕСЬ ...
 @dp.message(F.web_app_data)
-async def web_app_data_handler(message: types.Message): pass # Сокращено для краткости
+async def web_app_data_handler(message: types.Message): pass
 @dp.message(F.text == 'Контакты')
-async def contacts(message: types.Message): pass # Сокращено
+async def contacts(message: types.Message): pass
 @dp.message(F.text == 'Мои заказы')
-async def my_orders(message: types.Message): pass # Сокращено
+async def my_orders(message: types.Message): pass
 @dp.pre_checkout_query()
-async def precheckout_handler(pre_q: types.PreCheckoutQuery): pass # Сокращено
+async def precheckout_handler(pre_q: types.PreCheckoutQuery): pass
 @dp.message(F.content_type == types.ContentType.SUCCESSFUL_PAYMENT)
-async def successful_payment_handler(message: types.Message): pass # Сокращено
+async def successful_payment_handler(message: types.Message): pass
+
 
 # --- АДМИН-ПАНЕЛЬ (ПОЛНЫЙ КОД) ---
 @dp.message(F.text.in_({'Админ-панель', '/admin'}))
 async def admin_menu(message: types.Message):
     if not is_admin(message.from_user.id): return
-    kb = ReplyKeyboardBuilder()
-    kb.row(types.KeyboardButton(text='Добавить товар'), types.KeyboardButton(text='Редактировать товар'))
-    kb.row(types.KeyboardButton(text='Удалить товар'), types.KeyboardButton(text='Список товаров'))
-    kb.row(types.KeyboardButton(text='< Назад в меню'))
-    await message.reply('Админ-панель:', reply_markup=kb.as_markup(resize_keyboard=True))
+    await message.reply('Админ-панель:', reply_markup=get_admin_keyboard())
 
 @dp.message(F.text == '< Назад в меню')
 async def back_to_main_menu(message: types.Message):
@@ -127,9 +123,9 @@ async def delete_product_confirm(message: types.Message, state: FSMContext):
     try:
         pid = int(message.text)
         db_exec('DELETE FROM products WHERE id = ?', (pid,))
-        await message.reply(f'Товар {pid} удалён.', reply_markup=await get_admin_keyboard())
+        await message.reply(f'Товар {pid} удалён.', reply_markup=get_admin_keyboard())
     except ValueError:
-        await message.reply('Неверный ID. Введите число.', reply_markup=await get_admin_keyboard())
+        await message.reply('Неверный ID. Введите число.', reply_markup=get_admin_keyboard())
     finally:
         await state.clear()
 
@@ -145,7 +141,7 @@ async def edit_product_id(message: types.Message, state: FSMContext):
     try:
         pid = int(message.text.strip())
         if not db_exec('SELECT * FROM products WHERE id = ?', (pid,), fetch=True):
-            await message.reply('Товар с таким ID не найден.', reply_markup=await get_admin_keyboard())
+            await message.reply('Товар с таким ID не найден.', reply_markup=get_admin_keyboard())
             return await state.clear()
         await state.update_data(pid=pid)
         kb = ReplyKeyboardBuilder()
@@ -154,7 +150,7 @@ async def edit_product_id(message: types.Message, state: FSMContext):
         await message.reply('Выберите поле для редактирования:', reply_markup=kb.as_markup(resize_keyboard=True))
         await state.set_state(EditProductStates.field)
     except ValueError:
-        await message.reply('Неверный ID.', reply_markup=await get_admin_keyboard())
+        await message.reply('Неверный ID.', reply_markup=get_admin_keyboard())
         await state.clear()
 
 @dp.message(EditProductStates.field)
@@ -170,23 +166,91 @@ async def edit_product_field(message: types.Message, state: FSMContext):
 async def edit_product_value(message: types.Message, state: FSMContext):
     data = await state.get_data()
     pid, field = data['pid'], data['field']
+    new_value = ''
     if field == 'photo': new_value = message.photo[-1].file_id if message.photo else message.text.strip()
     elif field == 'price': new_value = cents_from_decimal(message.text)
     else: new_value = message.text.strip()
     db_exec(f'UPDATE products SET {field} = ? WHERE id = ?', (new_value, pid))
-    await message.reply(f'Товар {pid} обновлен.', reply_markup=await get_admin_keyboard())
+    await message.reply(f'Товар {pid} обновлен.', reply_markup=get_admin_keyboard())
     await state.clear()
 
-# -- Добавление товара (убедись, что этот код тоже есть) --
+
+# -- Добавление товара (ПОЛНЫЙ КОД) --
 @dp.message(F.text == 'Добавить товар')
 async def addproduct_start(message: types.Message, state: FSMContext):
     if not is_admin(message.from_user.id): return
     await message.reply('Название товара:', reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(AddProductStates.name)
-# ... и все остальные хендлеры для AddProductStates ...
+
+@dp.message(AddProductStates.name)
+async def addp_name(message: types.Message, state: FSMContext):
+    await state.update_data(name=message.text.strip())
+    await message.reply('Введите категорию (существующая или новая):')
+    await state.set_state(AddProductStates.category)
+
+@dp.message(AddProductStates.category)
+async def addp_cat(message: types.Message, state: FSMContext):
+    cat = message.text.strip()
+    rows = db_exec('SELECT id FROM categories WHERE name = ?', (cat,), fetch=True)
+    if not rows:
+        db_exec('INSERT INTO categories(name) VALUES(?)', (cat,))
+        rows = db_exec('SELECT id FROM categories WHERE name = ?', (cat,), fetch=True)
+    await state.update_data(category_id=rows[0]['id'])
+    await message.reply('Введите цену (например, 750):')
+    await state.set_state(AddProductStates.price)
+
+@dp.message(AddProductStates.price)
+async def addp_price(message: types.Message, state: FSMContext):
+    try:
+        await state.update_data(price=cents_from_decimal(message.text))
+        await message.reply('Введите описание:')
+        await state.set_state(AddProductStates.description)
+    except Exception:
+        await message.reply('Неверный формат цены. Введите число.')
+
+@dp.message(AddProductStates.description)
+async def addp_desc(message: types.Message, state: FSMContext):
+    await state.update_data(description=message.text.strip())
+    await message.reply('Введите размеры через запятую (S,M,L):')
+    await state.set_state(AddProductStates.sizes)
+
+@dp.message(AddProductStates.sizes)
+async def addp_sizes(message: types.Message, state: FSMContext):
+    await state.update_data(sizes=','.join([s.strip() for s in message.text.split(',') if s.strip()]))
+    await message.reply('Введите цвета через запятую (Черный,Белый):')
+    await state.set_state(AddProductStates.colors)
+
+@dp.message(AddProductStates.colors)
+async def addp_colors(message: types.Message, state: FSMContext):
+    await state.update_data(colors=','.join([c.strip() for c in message.text.split(',') if c.strip()]))
+    await message.reply('Введите остаток (целое число):')
+    await state.set_state(AddProductStates.stock)
+
+@dp.message(AddProductStates.stock)
+async def addp_stock(message: types.Message, state: FSMContext):
+    try:
+        await state.update_data(stock=int(message.text.strip()))
+        await message.reply('Отправьте фото товара (как файл) или URL:')
+        await state.set_state(AddProductStates.photo)
+    except ValueError:
+        await message.reply('Неверный остаток. Введите целое число.')
+
+@dp.message(AddProductStates.photo, F.content_type.in_({'photo', 'text'}))
+async def addp_photo(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    photo_val = message.photo[-1].file_id if message.photo else message.text.strip()
+    try:
+        db_exec("""INSERT INTO products (name, category_id, price, description, sizes, colors, photo, stock, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (data['name'], data['category_id'], data['price'], data['description'],
+                 data['sizes'], data['colors'], photo_val, data['stock'], datetime.utcnow().isoformat()))
+        await message.reply('Товар добавлен ✅', reply_markup=get_admin_keyboard())
+    except Exception as e:
+        await message.reply(f'Ошибка: {e}', reply_markup=get_admin_keyboard())
+    await state.clear()
 
 # Вспомогательная функция для клавиатуры админа
-async def get_admin_keyboard():
+def get_admin_keyboard():
     kb = ReplyKeyboardBuilder()
     kb.row(types.KeyboardButton(text='Добавить товар'), types.KeyboardButton(text='Редактировать товар'))
     kb.row(types.KeyboardButton(text='Удалить товар'), types.KeyboardButton(text='Список товаров'))

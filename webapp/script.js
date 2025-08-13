@@ -12,10 +12,12 @@ let currentScreen = 'loader';
 let navigationHistory = []; // Для кнопки "назад"
 let cart = {}; // { 'product_id_size_color': { item, qty } }
 
-// --- Функции для взаимодействия с API ---
 async function fetchShopData() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/all_data`);
+        // !!! ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ !!!
+        const response = await fetch(`${API_BASE_URL}/api/all_data`, {
+            cache: 'no-cache' // Отключаем кэширование
+        });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -36,28 +36,25 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-.list-container .item, .back-button, .action-button {
-    background: #f0f0f0;
+.list-container .item {
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e0e0e0; /* Добавим рамку для контраста */
+    color: var(--tg-theme-text-color); /* Явно указываем цвет текста */
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
     cursor: pointer;
     text-align: center;
     font-weight: 500;
-    transition: background-color 0.2s ease;
 }
-.list-container .item:hover { background-color: #e0e0e0; }
 
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-}
 .product-card {
-    background: #f7f7f7;
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
+    color: var(--tg-theme-text-color); /* Явно указываем цвет текста */
 }
 .product-card img {
     width: 100%;
