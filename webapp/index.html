@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gorosso Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loader" class="screen active">
+        <div class="spinner"></div>
+        <p>Загрузка магазина...</p>
+    </div>
+
+    <div id="categories-screen" class="screen">
+        <h2>Категории</h2>
+        <div id="categories-list" class="list-container"></div>
+    </div>
+
+    <div id="products-screen" class="screen">
+        <button class="back-button" onclick="showScreen('categories-screen')">← Назад к категориям</button>
+        <h2 id="category-title">Товары</h2>
+        <div id="products-list" class="grid-container"></div>
+    </div>
+
+    <div id="product-details-screen" class="screen">
+        <button class="back-button" onclick="goBackToProducts()">← Назад к товарам</button>
+        <div id="product-details-content"></div>
+    </div>
+
+    <div id="cart-screen" class="screen">
+        <button class="back-button" onclick="goBackFromCart()">← Назад</button>
+        <h2>Корзина</h2>
+        <div id="cart-items"></div>
+        <div id="cart-total"></div>
+        <div id="cart-actions"></div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button onclick="fetchCategories()">Каталог</button>
+        <button onclick="showCart()">Корзина <span id="cart-counter"></span></button>
+    </nav>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
