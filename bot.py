@@ -106,7 +106,7 @@ class DeleteProductStates(StatesGroup): id_to_delete = State()
 async def cmd_start(message: types.Message):
     kb = ReplyKeyboardBuilder()
     # !!! ЗАМЕНИТЬ НА СВОЙ РЕАЛЬНЫЙ URL от GitHub Pages !!!
-    web_app_url = 'https://cozn1l.github.io/gorossotestbot/webapp/'
+    web_app_url = 'https://cozn1l.github.io/gorossotestbot1/webapp/'
     kb.row(types.KeyboardButton(text='🏪 Открыть магазин', web_app=WebAppInfo(url=web_app_url)))
     kb.row(types.KeyboardButton(text='Мои заказы'), types.KeyboardButton(text='Контакты'))
     if is_admin(message.from_user.id):
