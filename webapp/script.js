@@ -3,7 +3,7 @@ const tg = window.Telegram.WebApp;
 
 // Настройки
 const API_URL = 'https://cozn1l.github.io/gorossotestbot1/webapp/'; // ЗАМЕНИТЬ НА СВОЙ URL ПОСЛЕ ЗАГРУЗКИ
-const API_BASE_URL = 'https://gorossotestbot.onrender.com/'
+const API_BASE_URL = 'https://gorossotestbot.onrender.com'
 const CURRENCY = 'MDL';
 
 // Состояние приложения
